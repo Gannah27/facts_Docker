@@ -1,0 +1,41 @@
+version: '3.0'
+
+services:
+  funfact-api:
+    build: ./facts-service
+    volumes:
+      - ./facts-service:/app
+    ports:
+      - 5001:5000
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_USER: admin
+      DB_PASSWORD: admin
+      DB_NAME: flask  
+    networks:
+      - app-network
+
+  facts-front:
+    build: ./FactsUI
+    volumes:
+      - ./FactsUI:/usr/share/nginx/html
+    ports:
+      - 5008:80
+    networks:
+      - app-network
+
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d/
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
